@@ -74,6 +74,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -1287,10 +1288,13 @@ func (p *gdbProcess) setCurrentBreakpoints() error {
 
 // ReadMemory will read into 'data' memory at the address provided.
 func (p *gdbProcess) ReadMemory(data []byte, addr uint64) (n int, err error) {
+	debug.PrintStack()
+
 	err = p.conn.readMemory(data, addr)
 	if err != nil {
 		return 0, err
 	}
+
 	return len(data), nil
 }
 
@@ -1432,6 +1436,7 @@ func (regs *gdbRegisters) init(regsInfo []gdbRegisterInfo) {
 	// FIXME: somehow, this is 804 on my darwin/arm64, BUT the register values that
 	// gdb returns are 1632 in length and thus, at least 816 bytes are needed
 	regsz = 816
+	fmt.Printf("%d\n", regsz)
 
 	regs.buf = make([]byte, regsz)
 	for _, reginfo := range regsInfo {
@@ -1710,11 +1715,11 @@ func (regs *gdbRegisters) setCX(value uint64) {
 }
 
 func (regs *gdbRegisters) TLS() uint64 {
-	return regs.tls
+	return 0
 }
 
 func (regs *gdbRegisters) GAddr() (uint64, bool) {
-	return regs.gaddr, regs.hasgaddr
+	return regs.byName("x28"), true
 }
 
 func (regs *gdbRegisters) byName(name string) uint64 {

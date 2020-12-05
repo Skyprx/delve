@@ -1,3 +1,5 @@
+//+build !arm64
+
 // This file and its companion gdbserver_conn implement a target.Interface
 // backed by a connection to a debugger speaking the "Gdb Remote Serial
 // Protocol".
@@ -100,6 +102,7 @@ var debugserverXcodeRelativeExecutablePath = "SharedFrameworks/LLDB.framework/Ve
 
 var debugserverExecutablePaths = []string{
 	"debugserver",
+	"/Users/oxisto/Library/Developer/Xcode/DerivedData/debugserver-faajmadbqdximvdnuprueuousdmt/Build/Products/Debug/debugserver",
 	"/Library/Developer/CommandLineTools/Library/PrivateFrameworks/LLDB.framework/Versions/A/Resources/debugserver",
 	// Function returns the active developer directory provided by xcode-select to compute a debugserver path.
 	func() string {
@@ -305,6 +308,7 @@ func (p *gdbProcess) Connect(conn net.Conn, path string, pid int, debugInfoDirs 
 	// overwrite some existing memory to store the MOV.
 	if addr, err := p.conn.allocMemory(256); err == nil {
 		if _, err := p.conn.writeMemory(addr, p.loadGInstr()); err == nil {
+			fmt.Printf("load g instr at %s", addr)
 			p.loadGInstrAddr = addr
 		}
 	}
@@ -1418,10 +1422,15 @@ func (regs *gdbRegisters) init(regsInfo []gdbRegisterInfo) {
 
 	regsz := 0
 	for _, reginfo := range regsInfo {
+		fmt.Printf("regInfo: %+v", reginfo)
 		if endoff := reginfo.Offset + (reginfo.Bitsize / 8); endoff > regsz {
 			regsz = endoff
 		}
 	}
+	// FIXME: somehow, this is 804 on my darwin/arm64, BUT the register values that
+	// gdb returns are 1632 in length and thus, at least 816 bytes are needed
+	regsz = 816
+
 	regs.buf = make([]byte, regsz)
 	for _, reginfo := range regsInfo {
 		regs.regs[reginfo.Name] = gdbRegister{regnum: reginfo.Regnum, value: regs.buf[reginfo.Offset : reginfo.Offset+reginfo.Bitsize/8]}
@@ -1724,6 +1733,8 @@ func (regs *gdbRegisters) Get(n int) (uint64, error) {
 		mask16 = 0x00ff
 		mask32 = 0xffff
 	)
+
+	fmt.Printf("Trying to read register %d\n", n)
 
 	switch reg {
 	// 8-bit
