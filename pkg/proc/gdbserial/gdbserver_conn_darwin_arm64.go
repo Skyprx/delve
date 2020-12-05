@@ -1,4 +1,4 @@
-//+build !arm64
+//+build arm64 darwin
 
 package gdbserial
 
@@ -51,9 +51,11 @@ type gdbConn struct {
 }
 
 const (
-	regnamePC     = "rip"
-	regnameCX     = "rcx"
-	regnameSP     = "rsp"
+	regnamePC = "pc"
+	// as far as I understood it, the equivalent to rcx (the first register to pass int arguments)
+	// is x0
+	regnameCX     = "x0"
+	regnameSP     = "sp"
 	regnameDX     = "rdx"
 	regnameBP     = "rbp"
 	regnameFsBase = "fs_base"
@@ -264,10 +266,10 @@ func (conn *gdbConn) readTargetXml() (err error) {
 		regnum++
 	}
 	if !pcFound {
-		return errors.New("could not find RIP register1")
+		return errors.New("could not find PC register")
 	}
 	if !spFound {
-		return errors.New("could not find RSP register")
+		return errors.New("could not find SP register")
 	}
 	if !cxFound {
 		return errors.New("could not find RCX register")
@@ -354,7 +356,7 @@ func (conn *gdbConn) readRegisterInfo() (err error) {
 		return errors.New("could not find RSP register")
 	}
 	if !cxFound {
-		return errors.New("could not find RCX register")
+		return errors.New("could not find X0 register")
 	}
 
 	return nil
