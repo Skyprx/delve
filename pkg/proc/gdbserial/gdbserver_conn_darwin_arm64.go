@@ -57,7 +57,7 @@ const (
 	regnameCX     = "x0"
 	regnameSP     = "sp"
 	regnameDX     = "rdx"
-	regnameBP     = "rbp"
+	regnameBP     = "fp"
 	regnameFsBase = "fs_base"
 	regnameGsBase = "gs_base"
 )
@@ -80,6 +80,7 @@ func (err *GdbProtocolError) Error() string {
 	if err.code == "" {
 		return fmt.Sprintf("unsupported packet %s during %s", cmd, err.context)
 	}
+
 	return fmt.Sprintf("protocol error %s during %s for packet %s", err.code, err.context, cmd)
 }
 
@@ -103,8 +104,8 @@ func (err *GdbMalformedThreadIDError) Error() string {
 }
 
 const (
-	qSupportedSimple       = "$qSupported:swbreak+;hwbreak+;no-resumed+;xmlRegisters=i386"
-	qSupportedMultiprocess = "$qSupported:multiprocess+;swbreak+;hwbreak+;no-resumed+;xmlRegisters=i386"
+	qSupportedSimple       = "$qSupported:swbreak+;hwbreak+;no-resumed+;xmlRegisters=arm64"
+	qSupportedMultiprocess = "$qSupported:multiprocess+;swbreak+;hwbreak+;no-resumed+;xmlRegisters=arm64"
 )
 
 func (conn *gdbConn) handshake() error {
