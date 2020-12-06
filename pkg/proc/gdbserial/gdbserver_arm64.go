@@ -102,7 +102,7 @@ var debugserverXcodeRelativeExecutablePath = "SharedFrameworks/LLDB.framework/Ve
 
 var debugserverExecutablePaths = []string{
 	"debugserver",
-	"/Users/oxisto/Library/Developer/Xcode/DerivedData/debugserver-faajmadbqdximvdnuprueuousdmt/Build/Products/Debug/debugserver",
+	//"/Users/oxisto/Library/Developer/Xcode/DerivedData/debugserver-faajmadbqdximvdnuprueuousdmt/Build/Products/Debug/debugserver",
 	"/Library/Developer/CommandLineTools/Library/PrivateFrameworks/LLDB.framework/Versions/A/Resources/debugserver",
 	// Function returns the active developer directory provided by xcode-select to compute a debugserver path.
 	func() string {
@@ -292,6 +292,8 @@ func (p *gdbProcess) Connect(conn net.Conn, path string, pid int, debugInfoDirs 
 			}
 		}
 	}
+
+	p.gcmdok = false
 
 	tgt, err := p.initialize(path, debugInfoDirs, stopReason)
 	if err != nil {
@@ -1406,15 +1408,15 @@ func (regs *gdbRegisters) init(regsInfo []gdbRegisterInfo) {
 
 	regsz := 0
 	for _, reginfo := range regsInfo {
-		fmt.Printf("regInfo: %+v", reginfo)
+		//fmt.Printf("regInfo: %+v", reginfo)
 		if endoff := reginfo.Offset + (reginfo.Bitsize / 8); endoff > regsz {
 			regsz = endoff
 		}
 	}
 	// FIXME: somehow, this is 804 on my darwin/arm64, BUT the register values that
 	// gdb returns are 1632 in length and thus, at least 816 bytes are needed
-	regsz = 816
-	fmt.Printf("%d\n", regsz)
+	//regsz = 816
+	//fmt.Printf("%d\n", regsz)
 
 	regs.buf = make([]byte, regsz)
 	for _, reginfo := range regsInfo {
