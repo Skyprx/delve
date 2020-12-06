@@ -283,7 +283,6 @@ func (dbp *nativeProcess) addThread(port int, attach bool) (*nativeThread, error
 	if dbp.memthread == nil {
 		dbp.memthread = thread
 	}
-	fmt.Printf("process: %+v", dbp)
 	return thread, nil
 }
 
