@@ -5,6 +5,10 @@
 
 extern char** environ;
 
+#ifndef POSIX_SPAWN_DISABLE_ASLR
+#define POSIX_SPAWN_DISABLE_ASLR 0x0100
+#endif
+
 int
 close_exec_pipe(int fd[2]) {
 	if (pipe(fd) < 0) return -1;
@@ -39,6 +43,9 @@ spawn(char *argv0, char **argv, int size,
 
     short flags = POSIX_SPAWN_START_SUSPENDED | POSIX_SPAWN_SETSIGDEF |
           POSIX_SPAWN_SETSIGMASK;
+
+	// seems to be needed on arm64
+	flags |= POSIX_SPAWN_DISABLE_ASLR;
 
     posix_spawnattr_setflags(&attributes, flags);
 
